@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taxi_app/NavBar.dart';
 import 'package:taxi_app/login.dart';
 import 'package:taxi_app/pages/homePage.dart';
+import 'package:taxi_app/welcome.dart';
 import 'InputDeco_design.dart';
 import 'package:http/http.dart' as http ;
 import 'package:taxi_app/main.dart';
@@ -40,7 +41,7 @@ class _FormPageState extends State<AddDrivers> {
     dynamic token = FlutterSession().get('token');
     String dropdownvalue = 'Driver';
     var items = ['Driver', 'Manager', 'Association'];
-
+    var mEmail;
     //String name,email,phone;
     TextEditingController fullname = TextEditingController();
     TextEditingController number_plate = TextEditingController();
@@ -72,7 +73,7 @@ class _FormPageState extends State<AddDrivers> {
                                 CircleAvatar(
                                     radius: 70,
                                     child: ClipOval(
-                                        child: Image.network("https://unpeppered-demonstr.000webhostapp.com/driverimg.jpg",width: 300, height: 300, fit: BoxFit.cover,),
+                                        child: Image.network("https://appmadetaxiapp.000webhostapp.com/driverimg.jpg",width: 300, height: 300, fit: BoxFit.cover,),
                                     ),
                                 ),
                                 SizedBox(
@@ -118,24 +119,7 @@ class _FormPageState extends State<AddDrivers> {
                                         },
                                     ),
                                 ),
-                                /*Padding(
-                  padding: const EdgeInsets.only(bottom: 15,left: 10,right: 10),
-                  child: TextFormField(
-                    controller: _phone,
-                    keyboardType: TextInputType.number,
-                    decoration:buildInputDecoration(Icons.phone,"Phone No"),
-                    validator: (String value){
-                      if(value.isEmpty)
-                      {
-                        return 'Please enter phone no ';
-                      }
-                      return null;
-                    },
-                    onSaved: (String value){
-                      //phone = value;
-                    },
-                  ),
-                ),*/
+
 
                                 Padding(
                                     padding: const EdgeInsets.only(
@@ -161,32 +145,7 @@ class _FormPageState extends State<AddDrivers> {
                                         },
                                     ),
                                 ),
-                                /*Padding(
-                  padding: const EdgeInsets.only(bottom: 15,left: 10,right: 10),
-                  child: TextFormField(
-                    controller: _confirmpassword,
-                    obscureText: true,
-                    keyboardType: TextInputType.text,
-                    decoration:buildInputDecoration(Icons.lock,"Confirm Password"),
-                    validator: (String value){
-                      if(value.isEmpty)
-                      {
-                        return 'Please re-enter password';
-                      }
-                      print(_password.text);
 
-                      print(_confirmpassword.text);
-
-                      if(_password.text!=_confirmpassword.text){
-                        return "Password does not match";
-                      }
-
-                      return null;
-                    },
-
-                  ),
-                ),
-                */
 
 
                                 SizedBox(
@@ -200,17 +159,10 @@ class _FormPageState extends State<AddDrivers> {
                                                await RegistrationUser();
 
                                                 //userSignIn();
-                                                print("successful");
-                                                toast = "successful";
-                                                showToast(toast);
+
                                             } else {
                                                 print("UnSuccessfull");
 
-                                                final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-                                                var obtainedEmail = sharedPreferences.getString('email');
-                                                print(obtainedEmail);
-                                                toast = "sorry, unsuccessful";
-                                                showToast(toast);
 
                                             }
                                         },
@@ -238,35 +190,39 @@ class _FormPageState extends State<AddDrivers> {
     void showToast(toast) => Fluttertoast.showToast(msg: toast, fontSize: 18,);
 
     Future RegistrationUser() async {
-        var APIURL = "https://unpeppered-demonstr.000webhostapp.com/addDriver.php";
+
+        var APIURL = "https://appmadetaxiapp.000webhostapp.com/addDriver.php";
+        final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+         mEmail = sharedPreferences.getString('email');
 
         Map mapeddate = {
             'fullname': fullname.text,
             'number_plate': number_plate.text,
-            //'phone': _phone.text,
-            'email': email.text,
 
+            'drEmail': email.text,
+             'mEmail': mEmail,
         };
-//print("JSON DATA: ${mapeddate}");
 
         http.Response res = await http.post(APIURL, body: mapeddate);
 
 
-        if (json.decode(res.body) == "user Already exist") {
+        if (jsonDecode(res.body) == "user Already exist") {
             print('user already exists');
             toast = "user already exists";
             showToast(toast);
         } else {
             if (jsonDecode(res.body) == "Registration success") {
                 print("Driver Registration success, The driver can login using this email");
-                toast = "Driver Registration success, The driver can login using this email";
-                await showToast(toast);
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyHomePage()));
+                toast = "Driver Registration success";
+                 showToast(toast);
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => welcome()));
                 // _showToast(context);
 
             } else {
-                if (json.decode(res.body) == "error in Registration") {
+                if (jsonDecode(res.body) == "error in Registration") {
                     print("error in Registration");
+                    print('$mEmail');
+                    print('mrthandananizulu@gmail.com');
                     toast = "error in Registration";
                     showToast(toast);
                 };

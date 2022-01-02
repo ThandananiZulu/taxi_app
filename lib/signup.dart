@@ -59,7 +59,7 @@ key: _formkey,
                                 CircleAvatar(
                                     radius: 70,
                                     child: ClipOval(
-                                    child: Image.network('https://unpeppered-demonstr.000webhostapp.com/taxapp.png', width: 300, height: 300, fit: BoxFit.cover,),
+                                    child: Image.network('https://appmadetaxiapp.000webhostapp.com/taxapp.png', width: 300, height: 300, fit: BoxFit.cover,),
 
                                 ),
                                 ),
@@ -127,12 +127,17 @@ key: _formkey,
                                     padding: const EdgeInsets.only(bottom: 15,left: 10,right: 10),
                                     child: TextFormField(
                                         controller: _password,
+                                        obscureText: true,
                                         keyboardType: TextInputType.text,
                                         decoration:buildInputDecoration(Icons.lock,"Password"),
                                         validator: (String value){
                                             if(value.isEmpty)
                                             {
                                                 return 'Please Enter a Password';
+                                            }
+                                            if(value.toLowerCase() == "taxiapp")
+                                            {
+                                                return 'Please choose a different password';
                                             }
                                             return null;
                                         },
@@ -151,10 +156,10 @@ key: _formkey,
                                             {
                                                 return 'Please re-enter password';
                                             }
-                                            print(_password.text);
-
-                                            print(_confirmpassword.text);
-
+                                            if(value.toLowerCase() == "taxiapp")
+                                            {
+                                                return 'Please enter a different password';
+                                            }
                                             if(_password.text!=_confirmpassword.text){
                                                 return "Password does not match";
                                             }
@@ -195,15 +200,12 @@ key: _formkey,
                                                 await RegistrationUser();
 
                                                 //userSignIn();
-                                                print("successful");
-                                                toast ="Successful!";
-                                                showToast(toast);
-                                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => login()));
+
 
                                             }else{
-                                                print("UnSuccessfull");
-                                                toast ="UnSuccessfull";
-                                                showToast(toast);
+                                                // print("UnSuccessfull");
+                                                // toast ="UnSuccessfull";
+                                                // showToast(toast);
                                             }
                                         },
                                         shape: RoundedRectangleBorder(
@@ -223,9 +225,10 @@ key: _formkey,
             ),
         );
     }
+    void showToast(toast) => Fluttertoast.showToast(msg: toast, fontSize: 18,);
 
     Future RegistrationUser() async{
-        var APIURL = "https://unpeppered-demonstr.000webhostapp.com/signup.php";
+        var APIURL = "https://appmadetaxiapp.000webhostapp.com/signup.php";
 
         Map mapeddate = {
             'name': _name.text,
@@ -241,11 +244,35 @@ key: _formkey,
         var data = json.decode(reponse.body);
 
 
-        print("DATA: ${data}");
-        toast ="DATA: ${data}";
-        showToast(toast);
+
+
+
+
+
+        if (jsonDecode(reponse.body) == "user already exist") {
+            print('user already exists');
+            toast = "user already exists";
+            showToast(toast);
+        } else {
+            if (jsonDecode(reponse.body) == "Registration Success") {
+                print(
+                    "Driver Registration success, The driver can login using this email");
+                toast = "Driver Registration success";
+                showToast(toast);
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => login()));
+                // _showToast(context);
+
+            } else {
+                if (jsonDecode(reponse.body) == "Registration Error") {
+                    print("error in Registration");
+
+                    toast = "error in Registration";
+                    showToast(toast);
+                };
+            }
+        }
     }
-  void showToast(toast) => Fluttertoast.showToast(msg: toast, fontSize: 18,);
 
 
 }

@@ -5,8 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_session/flutter_session.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:taxi_app/driverWelcome.dart';
 import 'package:taxi_app/pages/homePage.dart';
+import 'package:taxi_app/second_page.dart';
 import 'package:taxi_app/signup.dart';
+import 'package:taxi_app/welcome.dart';
 import 'InputDeco_design.dart';
 import 'package:http/http.dart' as http ;
 
@@ -60,7 +63,7 @@ class _FormPageState extends State<login> {
                                 CircleAvatar(
                                     radius: 70,
                                     child: ClipOval(
-                                    child: Image.network('https://unpeppered-demonstr.000webhostapp.com/taxapp.png',width: 300, height: 300, fit: BoxFit.cover,),
+                                    child: Image.network('https://appmadetaxiapp.000webhostapp.com/taxapp.png',width: 300, height: 300, fit: BoxFit.cover,),
                                 ),
                                 ),
                                 SizedBox(
@@ -93,6 +96,7 @@ class _FormPageState extends State<login> {
                                     padding: const EdgeInsets.only(bottom: 15,left: 10,right: 10),
                                     child: TextFormField(
                                         controller: _password,
+                                        obscureText: true,
                                         keyboardType: TextInputType.text,
                                         decoration:buildInputDecoration(Icons.lock,"Password"),
                                         validator: (String value){
@@ -151,7 +155,7 @@ class _FormPageState extends State<login> {
 
     Future userSignIn() async{
 
-        var url = "https://unpeppered-demonstr.000webhostapp.com/login.php";
+        var url = "https://appmadetaxiapp.000webhostapp.com/login.php";
         var data = {
             "email": _email.text,
             "password": _password.text,
@@ -171,13 +175,24 @@ class _FormPageState extends State<login> {
                 // _showToast(context);
 
             }else{
+                if(json.decode(res.body) == "taxiapp"){
+                    print('successful login');
+                    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+                    sharedPreferences.setString('email', _email.text);
+
+                    toast ="successful login";
+                    showToast(toast);
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => driverWelcome()));
+
+                }
                 if(json.decode(res.body) == "true"){
                     print('successful login');
                     final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
                     sharedPreferences.setString('email', _email.text);
+
                     toast ="successful login";
                     showToast(toast);
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyHomePage()));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => welcome()));
 
                 };
 

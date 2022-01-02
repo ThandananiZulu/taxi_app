@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:taxi_app/model/fetchDrivers.dart';
 import 'package:taxi_app/model/myData.dart';
 import 'package:taxi_app/notification_api.dart';
 import 'package:taxi_app/provider/myHomePageProvider.dart';
@@ -20,10 +22,10 @@ class _MyHomeState extends State<MyHomePage> {
     super.initState();
     notificationPlugin.setListenerForLowerVersions(onNotificationInLowerVersions);
     notificationPlugin.setOnNotificationClick(onNotificationClick);
-
+    _getDriver();
 
   }
-
+  List<FetchDriver> newDriver = [];
   bool seen = true;
   var long;
   var fname;
@@ -31,7 +33,7 @@ class _MyHomeState extends State<MyHomePage> {
   String vall ;
   int index;
   TextEditingController _names = TextEditingController();
-
+var tddate;
  List<String> drivers =[];
 
   int num;
@@ -44,9 +46,9 @@ class _MyHomeState extends State<MyHomePage> {
         centerTitle: true,
         title: Text('Rank Manager Table'),
       ),
-      body: ChangeNotifierProvider<MyHomePageProvider>(
-        create: (context) => MyHomePageProvider(),
-        child: Consumer<MyHomePageProvider>(
+      body: ChangeNotifierProvider<DriverProvider>(
+        create: (context) => DriverProvider(),
+        child: Consumer<DriverProvider>(
           builder: (context, provider, child) {
             if (provider.data == null) {
               provider.getData(context);
@@ -75,6 +77,10 @@ class _MyHomeState extends State<MyHomePage> {
                     DataColumn(
                         label: Text('Completed Load'),
                         tooltip: 'All loads driver has successfully completed'),
+                    DataColumn(
+                        label: Text('Remove'),
+                        tooltip: 'Remove the selected row'),
+
                   ],
                   rows: provider.data.toList()
                       .map((data) =>
@@ -87,28 +93,43 @@ class _MyHomeState extends State<MyHomePage> {
 
 
 
-                        DataCell((data.increment) != null
+                        DataCell((data.tDate) != null
                             ? Icon(
                           Icons.add_task_sharp,
                           color: Colors.green,
                         )
                             : Icon(Icons.cancel, color: Colors.red),
-                            onTap: () async{ await _getrow(data.fullname);
+                            onTap: () async{ await _getrow(data.id);
 
-  drivers = provider.data.map((data) => ('${data.fullname}')).toList();
+  drivers = provider.data.map((data) => ('${data.drName}')).toList();
   index = provider.data.indexWhere((element) =>
-  element.fullname == data.fullname);
+  element.drName == data.drName);
    long = drivers.length - 1;
-   fname = data.fullname;
+   fname = data.drName;
 
 
                         }
 
                         ),
-                        DataCell(Text(data.fullname),),
-                        DataCell(Text(data.numberPlate)),
-                        DataCell(Text(data.date)),
-                        DataCell(Text(data.load)),
+                        DataCell(Text(data.drName),),
+                        DataCell(Text(data.drNumberPlate)),
+                        DataCell(Text(data.tDate)),
+                        DataCell(Text(data.loads)),
+
+                        DataCell((data.tDate) != null
+                            ? Icon(
+                          Icons.delete,
+                          color: Colors.blueGrey,
+                        )
+                            : Icon(Icons.cancel, color: Colors.red),
+                            onTap: () async{ //await _getrow(data.id);
+
+
+
+
+                            }
+
+                        ),
                       ]))
                       .toList(),
                 ),
@@ -162,10 +183,16 @@ Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyHomePage(),
   }
   Future updateLoad() async{
 
-    var APIURL = "https://unpeppered-demonstr.000webhostapp.com/updateload.php";
+    var APIURL = "https://appmadetaxiapp.000webhostapp.com/updateload.php";
+    var now = new DateTime.now();
+    var formattedDate = new DateTime(now.year, now.month,now.day).toString();
+    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var mEmail = sharedPreferences.getString('email');
 
     Map mapeddate = {
-      "fullname": value,
+      "mEmail" : mEmail,
+      "id": value,
+      "tddate" : formattedDate,
 
     };
 print("JSON DATA: ${mapeddate}");
@@ -193,27 +220,24 @@ Navigator.of(context).push(MaterialPageRoute(builder: (context) => SecondPage(pa
   }
 
 
+  Future _getDriver() async {
+    var APIURL = "https://appmadetaxiapp.000webhostapp.com/getDrivers.php";
+    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var mEmail = sharedPreferences.getString('email');
+
+    var now = new DateTime.now();
+    tddate = new DateTime(now.year, now.month,now.day).toString();
+
+    Map mapeddate = {
+      'mEmail': mEmail,
+      'tddate': tddate,
+    };
+
+    var data = await http.post(APIURL, body: mapeddate);
+    var jsonData =  json.decode(data.body);
+
+    newDriver = fetchDriverFromJson(data.body);
+
+  }
+
 }
-// selected: selectedEmployees.contains(data),
-//    onSelectChanged: (isSelected) => setState((){
-//      final isAdding = isSelected != null && isSelected;
-//
-//      isAdding
-//      ?selectedEmployees.add(data)
-//          : selectedEmployees.remove(data);
-//      _Add(context);
-//
-//   }),
-
-
-
-//           final names = selectedEmployees.map((data) => data.fullname).join(', ');
-//           print('selected drivers: $names');
-// value = names;
-
-
-
-//void listenNotifications() => NotificationApi.onNotifications.stream.listen(onClickedNotification);
-
-//void onClickedNotification(String payload) =>
-//Navigator.of(context).push(MaterialPageRoute(builder: (context) => SecondPage(payload: payload),));

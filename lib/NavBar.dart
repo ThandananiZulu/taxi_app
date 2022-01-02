@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:taxi_app/AddDrivers.dart';
+import 'package:taxi_app/login.dart';
 import 'package:taxi_app/pages/homePage.dart';
 
 import 'package:taxi_app/second_page.dart';
+import 'package:taxi_app/welcome.dart';
 
 class NavBar extends StatelessWidget {
 
@@ -21,6 +23,13 @@ class NavBar extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.blue,
                 ),
+          ),
+          ListTile(
+            leading: Icon(Icons.car_rental_sharp),
+            title: Text(''
+                'Main page'),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => welcome())), //SignOut Page
+
           ),
           ListTile(
             leading: Icon(Icons.person),
@@ -41,7 +50,12 @@ class NavBar extends StatelessWidget {
 
           ),
 
+          ListTile(
+            leading: Icon(Icons.car_rental_sharp),
+            title: Text('Logout'),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => login())), //SignOut Page
 
+          ),
         ],
       ),
     );

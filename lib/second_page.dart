@@ -18,34 +18,13 @@ class SecondPage extends StatelessWidget{
 
         ),
 
-        // body: Container(
-        //   alignment: Alignment.center,
-        //   padding: EdgeInsets.all(32),
-        //   child: Column(
-        //     mainAxisAlignment: MainAxisAlignment.center,
-        //     children: [
-        //       Text(
-        //         payload ?? '',
-        //         style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold,
-        //         ),
-        //         textAlign: TextAlign.center,
-        //       ),
-        //       const SizedBox(height: 24),
-        //       Text(
-        //         'PAYLOAD',
-        //         style: TextStyle(fontSize: 32),
-        //
-        //       ),
-        //     ],
-        //   ),
-        // ),
 
-        body: ChangeNotifierProvider<MyHomePageProvider>(
-            create: (context) => MyHomePageProvider(),
-            child: Consumer<MyHomePageProvider>(
+        body: ChangeNotifierProvider<ShowDriverProvider>(
+            create: (context) => ShowDriverProvider(),
+            child: Consumer<ShowDriverProvider>(
                 builder: (context, provider, child) {
                     if (provider.data == null) {
-                        provider.getData(context);
+                        provider.showData(context);
                         return Center(child: CircularProgressIndicator());
                     }
                     // when we have the json loaded... let's put the data into a data table widget
@@ -77,8 +56,8 @@ class SecondPage extends StatelessWidget{
 
 
 
-                                        DataCell(Text(data.fullname),),
-                                        DataCell(Text(data.numberPlate)),
+                                        DataCell(Text(data.drName),),
+                                        DataCell(Text(data.drNumberPlate)),
 
                                     ]))
                                     .toList(),

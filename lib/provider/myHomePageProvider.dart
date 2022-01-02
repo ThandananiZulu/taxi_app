@@ -1,46 +1,64 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:taxi_app/model/fetchDrivers.dart';
 import 'package:taxi_app/model/myData.dart';
 
 
-class MyHomePageProvider extends ChangeNotifier {
-  List<Employees> data;
+
+
+class DriverProvider extends ChangeNotifier {
+  List<FetchDriver> data;
+  var tddate;
   var client = http.Client();
   Future getData(context) async {
-    // You can call an API to get data, once we've the data from API or any other flow... Following part would always be the same.
-    // We forgot about one more important part .. lets do that first
+    var APIURL = "https://appmadetaxiapp.000webhostapp.com/getDrivers.php";
 
-    // We need access to BuildContext for loading this string and it's not recommended to store this context in any variable here
-    // in change notifier..
+    var now = new DateTime.now();
+    tddate = new DateTime(now.year, now.month,now.day).toString();
+    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var mEmail = sharedPreferences.getString('email');
 
-    //var response = await DefaultAssetBundle.of(context)
-    //  .loadString('assets/raw/mJson.json');
-    //   var url = "http://192.168.43.146/flutter/emp.php";
-    // final response = await client.get(url);
+    Map mapeddate = {
+      'mEmail': mEmail,
+      'tddate': tddate,
+    };
 
-    String url ="https://unpeppered-demonstr.000webhostapp.com/emp.php";
+    var data = await http.post(APIURL, body: mapeddate);
 
-    final response = await http.get(url);
-    this.data = employeesFromMap(response.body);
+    this.data = fetchDriverFromJson(data.body);
 
-
-
-
-    //var mJson = jsonDecode(response.body ) ;
-    //this.data = Employees.fromJson(mJson);
     this.notifyListeners();
-    // return json.decode(response.body);
-    // now we have response as String from local json or and API request...
-    //var mJson = json.decode(response);
-    // now we have a json...
 
-    this.notifyListeners(); // for callback to view
   }
 }
-/*Future<List<Employees>> fetchEmployees() async{
-  String url ="http://192.168.43.146/flutter/emp.php";
 
-  final response = await http.get(url);
-  return employeesFromMap(response.body);
-}*/
+/////////////////////
+
+
+class ShowDriverProvider extends ChangeNotifier {
+  List<FetchDriver> data;
+  var tddate;
+  var client = http.Client();
+  Future showData(context) async {
+    var APIURL = "https://appmadetaxiapp.000webhostapp.com/showDrivers.php";
+
+    var now = new DateTime.now();
+    tddate = new DateTime(now.year, now.month,now.day).toString();
+    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var drEmail = sharedPreferences.getString('email');
+
+    Map mapeddate = {
+      'drEmail': drEmail,
+      'tddate': tddate,
+    };
+
+    var data = await http.post(APIURL, body: mapeddate);
+
+    this.data = fetchDriverFromJson(data.body);
+
+    this.notifyListeners();
+
+  }
+}

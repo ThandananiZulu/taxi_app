@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:taxi_app/login.dart';
+
 import 'package:taxi_app/pages/homePage.dart';
-import 'package:taxi_app/AddDrivers.dart';
-import 'package:taxi_app/InputDeco_design.dart';
-import 'package:taxi_app/NavBar.dart';
+
+import 'package:taxi_app/welcome.dart';
+
+import 'login.dart';
 
 void main() {
   runApp(MyApp());
